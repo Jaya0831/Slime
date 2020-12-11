@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 public class GridManager : MonoBehaviour
 {
     public GameObject grid;
+    // 0~0.5,0.5~1.5...
     public Sprite[] gridSprites_demo;
     public TileBase[] tileBases_demo;
     public int numOfSprite;
@@ -32,7 +33,7 @@ public class GridManager : MonoBehaviour
 
 
     /// <summary>
-    /// 根据sprite加载地图信息
+    /// 根据sprite加载地图信息（仅适用于整数）
     /// </summary>
     /// <param name="mytilemap"></param>
     /// <param name="mygrid"></param>
@@ -54,7 +55,7 @@ public class GridManager : MonoBehaviour
                 {
                     if (mytilemap.GetSprite(new Vector3Int(i, j, 0)) == gridSprites_demo[k]) 
                     {
-                        mygrid.grid[i - left, j - down].nums = k;
+                        mygrid.grid[i - left, j - down].mol = k;
                         //Debug.Log("(" + i + "," + j + ")" + ":" + k);
                     }
                 }
@@ -122,29 +123,32 @@ public class GridManager : MonoBehaviour
                 //Debug.Log(i + "," + j);
                 int[] randomSort3 = RandomSort(4);
                 for (int k = 0; k < 4; k++)
-                {
-                    if (randomSort3[k] == 0 && i - 1 >= 0 && mygrid.grid[i, j].nums > 0 && mygrid.grid[i, j].nums > mygrid.grid[i - 1, j].nums) 
+                {//在差大于一的情况下转移1单位
+                    if (randomSort3[k] == 0 && i - 1 >= 0 && mygrid.grid[i, j].mol > 0 && mygrid.grid[i, j].mol > mygrid.grid[i - 1, j].mol) //hack: mygrid.grid[i, j].mol - 0.1 > mygrid.grid[i - 1, j].mol停止条件
                     {
-                        mygrid.grid[i, j].nums--;
-                        mygrid.grid[i - 1, j].nums++;
+                        float move = (mygrid.grid[i, j].mol - mygrid.grid[i - 1, j].mol) / 4; //hack：转移公式
+                        mygrid.grid[i, j].mol = mygrid.grid[i, j].mol - move;
+                        mygrid.grid[i - 1, j].mol = mygrid.grid[i - 1, j].mol + move;
                     }
-                    if (randomSort3[k] == 1 && i + 1 < mygrid.x_node && mygrid.grid[i, j].nums > 0 && mygrid.grid[i, j].nums > mygrid.grid[i + 1, j].nums) 
+                    if (randomSort3[k] == 1 && i + 1 < mygrid.x_node && mygrid.grid[i, j].mol > 0 && mygrid.grid[i, j].mol > mygrid.grid[i + 1, j].mol) 
                     {
-                        mygrid.grid[i, j].nums--;
-                        mygrid.grid[i + 1, j].nums++;
+                        float move = (mygrid.grid[i, j].mol - mygrid.grid[i + 1, j].mol) / 4;
+                        mygrid.grid[i, j].mol = mygrid.grid[i, j].mol - move;
+                        mygrid.grid[i + 1, j].mol = mygrid.grid[i + 1, j].mol + move;
                     }
-                    if (randomSort3[k] == 2 && j - 1 >= 0 && mygrid.grid[i, j].nums > 0 && mygrid.grid[i, j].nums > mygrid.grid[i, j - 1].nums)
+                    if (randomSort3[k] == 2 && j - 1 >= 0 && mygrid.grid[i, j].mol > 0 && mygrid.grid[i, j].mol > mygrid.grid[i, j - 1].mol)
                     {
-                        mygrid.grid[i, j].nums--;
-                        mygrid.grid[i, j - 1].nums++;
+                        float move = (mygrid.grid[i, j].mol - mygrid.grid[i, j - 1].mol) / 4;
+                        mygrid.grid[i, j].mol = mygrid.grid[i, j].mol - move;
+                        mygrid.grid[i, j - 1].mol = mygrid.grid[i, j - 1].mol + move;
                     }
-                    if (randomSort3[k] == 3 && j + 1 < mygrid.y_node && mygrid.grid[i, j].nums > 0 && mygrid.grid[i, j].nums > mygrid.grid[i, j + 1].nums)
+                    if (randomSort3[k] == 3 && j + 1 < mygrid.y_node && mygrid.grid[i, j].mol > 0 && mygrid.grid[i, j].mol > mygrid.grid[i, j + 1].mol)
                     {
-                        mygrid.grid[i, j].nums--;
-                        mygrid.grid[i, j + 1].nums++;
+                        float move = (mygrid.grid[i, j].mol - mygrid.grid[i, j + 1].mol) / 4;
+                        mygrid.grid[i, j].mol = mygrid.grid[i, j].mol - move;
+                        mygrid.grid[i, j + 1].mol = mygrid.grid[i, j + 1].mol + move;
                     }
                 }
-                
             }
         }
         LoadGridSprites(mytilemap, mygrid);
@@ -160,7 +164,7 @@ public class GridManager : MonoBehaviour
         {
             for (int j = down; j <= up; j++)
             {
-                mytilemap.SetTile(new Vector3Int(i, j, 0), tileBases_demo[mygrid.grid[i - left, j - down].nums]);
+                mytilemap.SetTile(new Vector3Int(i, j, 0), tileBases_demo[Mathf.RoundToInt(mygrid.grid[i - left, j - down].mol)]);
             }
         }
 

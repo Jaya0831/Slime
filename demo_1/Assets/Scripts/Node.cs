@@ -14,21 +14,21 @@ public class Node
     /// <summary>
     /// 总代价
     /// </summary>
-    public int F = 0;
+    //public int F = 0;
     /// <summary>
     /// 从起点到当前位置的代价
     /// </summary>
-    public int G = 0;
+    //public int G = 0;
     /// <summary>
     /// 从当前位置到终点的估算代价
     /// </summary>
-    public int H = 0;
+    //public int H = 0;
     /// <summary>
     /// 状态：undiscovered，open，close,obstacle(障碍物）
     /// </summary>
     //public enum Status { undiscovered, close, open, obstacle };
 
-    public int nums;
+    public float mol;
 
     //public Status status = Status.undiscovered;
 
