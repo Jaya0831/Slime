@@ -236,6 +236,18 @@ public class Node
         }
     }
 
+    public void ObtainASolid(PublicEnum.SolidType solidType, float num)
+    {
+        if (solidTypes.Exists(c => c.Equals(solidType)))
+        {
+            UpdateASolid(solidType, solidNums[solidTypes.FindIndex(c => c.Equals(solidType))] + num);
+        }
+        else
+        {
+            AddASolid(solidType, num);
+        }
+    }
+
     /// <summary>
     /// 向一个格子转移一定量液体
     /// </summary>
@@ -360,14 +372,14 @@ public class Node
                 if (liquidNums[i] > liquidNums[i + 1])
                 {
                     Debug.Log("situation1");
-                    AddASolid(PublicEnum.SolidType.stone, liquidNums[i + 1]);
+                    ObtainASolid(PublicEnum.SolidType.stone, liquidNums[i + 1]);
                     UpdateALiquid(liquidTypes[i], liquidNums[i] - liquidNums[i + 1]);
                     DeleteALiquid(liquidTypes[i + 1]);
                 }
                 else
                 {
                     Debug.Log("situation2");
-                    AddASolid(PublicEnum.SolidType.stone, liquidNums[i]);
+                    ObtainASolid(PublicEnum.SolidType.stone, liquidNums[i]);
                     UpdateALiquid(liquidTypes[i + 1], liquidNums[i + 1] - liquidNums[i]);
                     DeleteALiquid(liquidTypes[i]);
                 }

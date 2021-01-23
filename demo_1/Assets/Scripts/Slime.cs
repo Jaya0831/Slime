@@ -60,6 +60,7 @@ public class Slime : MonoBehaviour
         {
             Destroy(transform.GetChild(i).gameObject);//为什么是i：因为下一帧才会被删除，迷惑
         }
+        transform.position = GetComponent<SlimeController>().FromVectorToSlimePosition() + new Vector3(0, 0, GetComponent<SlimeController>().slimeVector.y - 0.5f);//更新slime位置
         int highTemp = 0;
         float offSet = 0.05f;
         float highStart = -0.475f;
@@ -128,7 +129,7 @@ public class Slime : MonoBehaviour
     public bool GetHurt()
     {
         Debug.Log("check");
-        if (containTypes.Exists(c => c.Equals(PublicEnum.LiquidType.lava)) && containNums[containTypes.FindIndex(c => c.Equals(PublicEnum.LiquidType.lava))] >= 9)
+        if (containTypes.Exists(c => c.Equals(PublicEnum.LiquidType.lava)) && containNums[containTypes.FindIndex(c => c.Equals(PublicEnum.LiquidType.lava))] >= 7)
         {
             Debug.Log("check1");
             return false;
@@ -146,7 +147,7 @@ public class Slime : MonoBehaviour
                 int index_water = containTypes.FindIndex(c => c.Equals(PublicEnum.LiquidType.water));
                 containWaterNum = containNums[index_water];
             }
-            if (node.liquidTypes.Exists(c => c.Equals(PublicEnum.LiquidType.lava)) && node.liquidNums[index_lava] - containWaterNum> 1)
+            if (node.liquidTypes.Exists(c => c.Equals(PublicEnum.LiquidType.lava)) && node.liquidNums[index_lava] - containWaterNum> 3)
             {
                 Debug.Log("gethurt");
                 alive = false;

@@ -1639,7 +1639,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1823,5 +1823,10 @@ PrefabInstance:
       propertyPath: myGrid
       value: 
       objectReference: {fileID: 868868947}
+    - target: {fileID: 2752095710609814575, guid: 5f3928f6b9f284aa6b5a3f1d53cc3b8a,
+        type: 3}
+      propertyPath: slimeVector.x
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5f3928f6b9f284aa6b5a3f1d53cc3b8a, type: 3}

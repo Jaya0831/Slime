@@ -49,27 +49,27 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 588}
+      Script: {instanceID: 590}
     - Class: 114
-      Script: {instanceID: 11628}
+      Script: {instanceID: 11630}
     - Class: 114
-      Script: {instanceID: 12102}
+      Script: {instanceID: 12104}
     - Class: 114
-      Script: {instanceID: 12158}
+      Script: {instanceID: 12160}
     - Class: 114
-      Script: {instanceID: 12186}
+      Script: {instanceID: 12188}
     - Class: 114
-      Script: {instanceID: 12194}
+      Script: {instanceID: 12196}
     - Class: 114
-      Script: {instanceID: 13864}
+      Script: {instanceID: 13866}
     - Class: 114
-      Script: {instanceID: 13978}
+      Script: {instanceID: 13980}
     - Class: 114
-      Script: {instanceID: 14044}
+      Script: {instanceID: 14046}
     - Class: 114
-      Script: {instanceID: 14066}
+      Script: {instanceID: 14068}
     - Class: 114
-      Script: {instanceID: 14272}
+      Script: {instanceID: 14274}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 157
@@ -630,4 +630,4 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/demo2.unity
-  playerPath: "/Users/liujiayi/\u5173\u4E8E\u5728\u6E38\u620F\u4E2D\u53D8\u6210\u53F2\u83B1\u59C6\u8FD9\u4EF6\u4E8BDemo1.2_Windows/demo_1.exe"
+  playerPath: "/Users/liujiayi/\u5173\u4E8E\u5728\u6E38\u620F\u4E2D\u53D8\u6210\u53F2\u83B1\u59C6\u8FD9\u4EF6\u4E8BDemo1.2_windows_002/demo_1.exe"

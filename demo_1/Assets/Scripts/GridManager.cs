@@ -36,8 +36,9 @@ public class GridManager : MonoBehaviour
             //Debug.Log("[6,0].mol:" + myGrid.GetComponent<Grid>().grid[6, 0].liquidmol);
             //Debug.Log("[5,1].mol:" + myGrid.GetComponent<Grid>().grid[5, 1].liquidmol);
             //Debug.Log("[5,0].liquidTypes.Count:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidTypes.Count);
-            //Debug.Log("[5,0].liquidNums[1]:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidNums[1]);
-            //Debug.Log("[5,0].waterHeights:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidHeights[myGrid.GetComponent<Grid>().grid[5, 0].liquidHeights.Count - 1]);
+            //Debug.Log("[5,0].liquidNums[0]:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidNums[0]);
+            //Debug.Log("[5,0].lavaHeight:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidHeights[0]);
+            Debug.Log("[5,0].SolidMol:" + myGrid.GetComponent<Grid>().grid[5, 0].solidmol);
         }
         timer++;
     }
@@ -86,7 +87,6 @@ public class GridManager : MonoBehaviour
                     {
                         continue;
                     }
-
                     int index = myGrid.grid[i, j].liquidTypes.FindIndex(c => c.Equals(possibleLiquids[k]));
 
                     int[] randomSort3 = RandomSort(4);
