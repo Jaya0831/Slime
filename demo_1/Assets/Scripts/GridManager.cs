@@ -6,94 +6,47 @@ using UnityEngine.Tilemaps;
 
 public class GridManager : MonoBehaviour
 {
-    public GameObject grid;
-    // 0~0.5,0.5~1.5...
-    public Sprite[] gridSprites_demo;
-    public TileBase[] tileBases_demo;
-    public int numOfSprite;
+    public Grid myGrid;
+    // 0~1,1~2...
+
+    public SlimeController slimeController;
+    public Slime slime;
 
     // Start is called before the first frame update
     void Start()
     {
-        numOfSprite = gridSprites_demo.Length;
-        LoadGridMessage(grid.GetComponent<Grid>().tilemap, grid.GetComponent<Grid>()); //hack：for test
     }
 
     private int timer=0;
     // Update is called once per frame
-    void Update()
+    void Update()//其实这个应该写到GameManager里面更好
     {
-        if (timer == 120) 
+        if (timer == 30 && slime.alive) 
         {
             timer = 0;
-            Spread(grid.GetComponent<Grid>().tilemap, grid.GetComponent<Grid>()); 
+            List<PublicEnum.LiquidType> temp = new List<PublicEnum.LiquidType> { PublicEnum.LiquidType.lava, PublicEnum.LiquidType.water };
+            slime.Absorb();
+            //hack:需不需要检测gethurt？因为实际上岩浆并不会到格子上，但是会在slime所在格子的旁边
+            myGrid.grid[slimeController.slimeVector.x, slimeController.slimeVector.y].RemoveAllOnAverage();
+            Spread(myGrid, temp);
+            myGrid.DeleteMap();
+            myGrid.Display();
+            //Debug.Log("[5,0].mol:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidmol);
+            //Debug.Log("[4,0].mol:" + myGrid.GetComponent<Grid>().grid[4, 0].liquidmol);
+            //Debug.Log("[6,0].mol:" + myGrid.GetComponent<Grid>().grid[6, 0].liquidmol);
+            //Debug.Log("[5,1].mol:" + myGrid.GetComponent<Grid>().grid[5, 1].liquidmol);
+            //Debug.Log("[5,0].liquidTypes.Count:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidTypes.Count);
+            //Debug.Log("[5,0].liquidNums[1]:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidNums[1]);
+            //Debug.Log("[5,0].waterHeights:" + myGrid.GetComponent<Grid>().grid[5, 0].liquidHeights[myGrid.GetComponent<Grid>().grid[5, 0].liquidHeights.Count - 1]);
         }
         timer++;
     }
 
-
     /// <summary>
-    /// 根据sprite加载地图信息（仅适用于整数）
+    /// 0～n-1的随机排列
     /// </summary>
-    /// <param name="mytilemap"></param>
-    /// <param name="mygrid"></param>
-    /// <param name="left"></param>
-    /// <param name="right"></param>
-    /// <param name="down"></param>
-    /// <param name="up"></param>
-    private void LoadGridMessage(Tilemap mytilemap, Grid mygrid)//最（左/右/上/下）的坐标
-    {
-        int left = -(mygrid.x_node / 2);
-        int right = mygrid.x_node / 2 - 1;
-        int down = -(mygrid.y_node / 2);
-        int up = mygrid.y_node / 2 - 1;
-        for (int i = left; i <= right; i++)
-        {
-            for (int j = down; j <= up; j++)
-            {
-                for (int k = 0; k < numOfSprite; k++)
-                {
-                    if (mytilemap.GetSprite(new Vector3Int(i, j, 0)) == gridSprites_demo[k]) 
-                    {
-                        mygrid.grid[i - left, j - down].mol = k;
-                        //Debug.Log("(" + i + "," + j + ")" + ":" + k);
-                    }
-                }
-                
-            }
-        }
-    }
-
-    //private void Spread(Tilemap mytilemap, Grid mygrid)
-    //{
-    //    for (int i = 0; i < mygrid.x_node; i++)
-    //    {
-    //        for (int j = 0; j < mygrid.y_node; j++)
-    //        {
-    //            if (i - 1 >= 0 && mygrid.grid[i, j].nums != 0 && mygrid.grid[i, j].nums - 1 > mygrid.grid[i - 1, j].nums) 
-    //            {
-    //                mygrid.grid[i, j].nums--;
-    //                mygrid.grid[i - 1, j].nums++;
-    //            }
-    //            if (i + 1 < mygrid.x_node && mygrid.grid[i, j].nums != 0 && mygrid.grid[i, j].nums - 1 > mygrid.grid[i + 1, j].nums)
-    //            {
-    //                mygrid.grid[i, j].nums--;
-    //                mygrid.grid[i + 1, j].nums++;
-    //            }
-    //            if (j - 1 >= 0 && mygrid.grid[i, j].nums != 0 && mygrid.grid[i, j].nums - 1 > mygrid.grid[i, j - 1].nums)
-    //            {
-    //                mygrid.grid[i, j].nums--;
-    //                mygrid.grid[i, j - 1].nums++;
-    //            }
-    //            if (j + 1 < mygrid.y_node && mygrid.grid[i, j].nums != 0 && mygrid.grid[i, j].nums - 1 > mygrid.grid[i, j + 1].nums)
-    //            {
-    //                mygrid.grid[i, j].nums--;
-    //                mygrid.grid[i, j + 1].nums++;
-    //            }
-    //        }
-    //    }
-    //    LoadGridSprites(mytilemap, mygrid);
-    //}
+    /// <param name="n"></param>
+    /// <returns></returns>
     private int[] RandomSort(int n)
     {
         List<int> availableNums = new List<int>();
@@ -110,63 +63,122 @@ public class GridManager : MonoBehaviour
         }
         return randomsort;
     }
-    private void Spread(Tilemap mytilemap, Grid mygrid)
+
+    /// <summary>
+    /// 扩散
+    /// </summary>
+    /// <param name="mytilemap"></param>
+    /// <param name="mygrid"></param>
+    private void Spread(Grid myGrid, List<PublicEnum.LiquidType> possibleLiquids)
     {
-        int[] randomSortx = RandomSort(mygrid.x_node);
-        for (int i_index = 0; i_index < mygrid.x_node; i_index++)
+        for (int k = 0; k < possibleLiquids.Count; k++)//决定是哪种液体
         {
-            int i = randomSortx[i_index];
-            int[] randomSorty = RandomSort(mygrid.y_node);
-            for (int j_index = 0; j_index < mygrid.y_node; j_index++)
+            int[] randomSortx = RandomSort(myGrid.x_node);
+            for (int i_index = 0; i_index < myGrid.x_node; i_index++)
             {
-                int j = randomSorty[j_index];
-                //Debug.Log(i + "," + j);
-                int[] randomSort3 = RandomSort(4);
-                for (int k = 0; k < 4; k++)
-                {//在差大于一的情况下转移1单位
-                    if (randomSort3[k] == 0 && i - 1 >= 0 && mygrid.grid[i, j].mol > 0 && mygrid.grid[i, j].mol > mygrid.grid[i - 1, j].mol) //hack: mygrid.grid[i, j].mol - 0.1 > mygrid.grid[i - 1, j].mol停止条件
+                int i = randomSortx[i_index];
+                int[] randomSorty = RandomSort(myGrid.y_node);
+                for (int j_index = 0; j_index < myGrid.y_node; j_index++)
+                {
+
+                    int j = randomSorty[j_index];
+                    if (myGrid.grid[i, j].hasObstacle || !myGrid.grid[i, j].liquidTypes.Exists(c => c.Equals(possibleLiquids[k])))
                     {
-                        float move = (mygrid.grid[i, j].mol - mygrid.grid[i - 1, j].mol) / 4; //hack：转移公式
-                        mygrid.grid[i, j].mol = mygrid.grid[i, j].mol - move;
-                        mygrid.grid[i - 1, j].mol = mygrid.grid[i - 1, j].mol + move;
+                        continue;
                     }
-                    if (randomSort3[k] == 1 && i + 1 < mygrid.x_node && mygrid.grid[i, j].mol > 0 && mygrid.grid[i, j].mol > mygrid.grid[i + 1, j].mol) 
+
+                    int index = myGrid.grid[i, j].liquidTypes.FindIndex(c => c.Equals(possibleLiquids[k]));
+
+                    int[] randomSort3 = RandomSort(4);
+                    for (int p = 0; p < 4 + myGrid.grid[i, j].connectNodes.Count; p++)
                     {
-                        float move = (mygrid.grid[i, j].mol - mygrid.grid[i + 1, j].mol) / 4;
-                        mygrid.grid[i, j].mol = mygrid.grid[i, j].mol - move;
-                        mygrid.grid[i + 1, j].mol = mygrid.grid[i + 1, j].mol + move;
-                    }
-                    if (randomSort3[k] == 2 && j - 1 >= 0 && mygrid.grid[i, j].mol > 0 && mygrid.grid[i, j].mol > mygrid.grid[i, j - 1].mol)
-                    {
-                        float move = (mygrid.grid[i, j].mol - mygrid.grid[i, j - 1].mol) / 4;
-                        mygrid.grid[i, j].mol = mygrid.grid[i, j].mol - move;
-                        mygrid.grid[i, j - 1].mol = mygrid.grid[i, j - 1].mol + move;
-                    }
-                    if (randomSort3[k] == 3 && j + 1 < mygrid.y_node && mygrid.grid[i, j].mol > 0 && mygrid.grid[i, j].mol > mygrid.grid[i, j + 1].mol)
-                    {
-                        float move = (mygrid.grid[i, j].mol - mygrid.grid[i, j + 1].mol) / 4;
-                        mygrid.grid[i, j].mol = mygrid.grid[i, j].mol - move;
-                        mygrid.grid[i, j + 1].mol = mygrid.grid[i, j + 1].mol + move;
+                        int iNeighbor = i;
+                        int jNeighbor = j;
+                        if (p < 4) 
+                        {
+                            switch (randomSort3[p])
+                            {
+                                case 0:
+                                    iNeighbor = i - 1;
+                                    break;
+                                case 1:
+                                    iNeighbor = i + 1;
+                                    break;
+                                case 2:
+                                    jNeighbor = j + 1;
+                                    break;
+                                case 3:
+                                    jNeighbor = j - 1;
+                                    break;
+
+                            }
+                        }                       
+                        if (p >= 4)//处理被管道连接的情况
+                        {//hack:被管道连接的地方就是邻居节点的情况
+                            iNeighbor = myGrid.grid[i, j].connectNodes[p - 4].nodeI;
+                            jNeighbor = myGrid.grid[i, j].connectNodes[p - 4].nodeJ;
+                        }
+                        if (iNeighbor > -1 && iNeighbor < myGrid.x_node && jNeighbor > -1 && jNeighbor < myGrid.y_node &&
+                        !myGrid.grid[iNeighbor, jNeighbor].hasObstacle &&
+                        (p >= 4 || !myGrid.grid[i, j].hasWall[randomSort3[p]] && !myGrid.grid[iNeighbor, jNeighbor].hasWall[randomSort3[p] % 2 == 1 ? randomSort3[p] - 1 : randomSort3[p] + 1]))
+                        {
+
+                            float height = myGrid.grid[i, j].liquidHeights[index];
+                            float num = myGrid.grid[i, j].liquidNums[index];
+                            if (!myGrid.grid[iNeighbor, jNeighbor].liquidTypes.Exists(c => c.Equals(possibleLiquids[k])))
+                            {
+                                if (height + num > myGrid.grid[iNeighbor, jNeighbor].solidmol)
+                                {
+                                    float remove = height > myGrid.grid[iNeighbor, jNeighbor].solidmol ? (num / 4.0f) : ((height + num - myGrid.grid[iNeighbor, jNeighbor].solidmol) / 4.0f);
+                                    myGrid.grid[i, j].UpdateALiquid(possibleLiquids[k], num - remove);
+                                    myGrid.grid[iNeighbor, jNeighbor].AddALiquid(possibleLiquids[k], remove);
+                                }
+                            }
+                            else
+                            {
+                                int indexNeighbor = myGrid.grid[iNeighbor, jNeighbor].liquidTypes.FindIndex(c => c.Equals(possibleLiquids[k]));
+                                float heightNeighbor = myGrid.grid[iNeighbor, jNeighbor].liquidHeights[indexNeighbor];
+                                float numNeighbor = myGrid.grid[iNeighbor, jNeighbor].liquidNums[indexNeighbor];
+                                if (height + num > heightNeighbor + numNeighbor)
+                                {
+                                    float remove = height > heightNeighbor + numNeighbor ? (num / 4.0f) : ((height + num - heightNeighbor - numNeighbor) / 4.0f);
+                                    myGrid.grid[i, j].UpdateALiquid(possibleLiquids[k], num - remove);
+                                    myGrid.grid[iNeighbor, jNeighbor].UpdateALiquid(possibleLiquids[k], numNeighbor + remove);
+                                }
+                            }
+                            
+                        }
                     }
                 }
             }
         }
-        LoadGridSprites(mytilemap, mygrid);
-    }
-
-    private void LoadGridSprites(Tilemap mytilemap, Grid mygrid)
-    {
-        int left = -(mygrid.x_node / 2);
-        int right = mygrid.x_node / 2 - 1;
-        int down = -(mygrid.y_node / 2);
-        int up = mygrid.y_node / 2 - 1;
-        for (int i = left; i <= right; i++)
+        for (int i = 0; i < myGrid.x_node; i++)
         {
-            for (int j = down; j <= up; j++)
+            for (int j = 0; j < myGrid.y_node; j++)
             {
-                mytilemap.SetTile(new Vector3Int(i, j, 0), tileBases_demo[Mathf.RoundToInt(mygrid.grid[i - left, j - down].mol)]);
+                for (int k = 0; k < myGrid.grid[i,j].solidNums.Count; k++)
+                {
+                    if (myGrid.grid[i, j].solidNums[k] < 0.01f)
+                    {
+                        myGrid.grid[i, j].DeleteASolid(myGrid.grid[i, j].solidTypes[k]);
+                    }
+                }
+                for (int k = 0; k < myGrid.grid[i, j].liquidNums.Count; k++)
+                {
+                    if (myGrid.grid[i, j].liquidNums[k] < 0.01f)
+                    {
+                        myGrid.grid[i, j].DeleteALiquid(myGrid.grid[i, j].liquidTypes[k]);
+                    }
+                }
+                
             }
         }
-
+        for (int i = 0; i < myGrid.x_node; i++)
+        {
+            for (int j = 0; j < myGrid.y_node; j++)
+            {
+                myGrid.grid[i, j].Reaction();
+            }
+        }
     }
 }
